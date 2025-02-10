@@ -55,7 +55,7 @@ import json
 import base64
 import os
 
-BACKEND_URL = "https://chatbot-ka29.onrender.com"
+BACKEND_URL = "https://chatbot-1-hh3z.onrender.com"
 
 response = requests.post(f"{BACKEND_URL}/api", json={"message": user_input})
 
