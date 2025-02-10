@@ -55,8 +55,10 @@ import json
 import base64
 import os
 
-# FastAPI Backend URL
-FASTAPI_URL = "http://127.0.0.1:8000"
+BACKEND_URL = "https://chatbot-ka29.onrender.com"
+
+response = requests.post(f"{BACKEND_URL}/api", json={"message": user_input})
+
 
 st.title("💬 AI Chatbot with Context")
 
