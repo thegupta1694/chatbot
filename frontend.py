@@ -53,12 +53,8 @@ import streamlit as st
 import requests
 import json
 import base64
-import os
 
-FASTAPI_URL = "https://chatbot-1-hh3z.onrender.com"
-
-response = requests.post(f"{BACKEND_URL}/api", json={"message": user_input})
-
+BACKEND_URL = "https://chatbot-1-hh3z.onrender.com"
 
 st.title("💬 AI Chatbot with Context")
 
@@ -74,10 +70,8 @@ col1, col2 = st.columns(2)
 with col1:
     if st.button("Download Chat History"):
         try:
-            response = requests.get(f"{FASTAPI_URL}/download_history/{st.session_state.user_id}")
-            
+            response = requests.get(f"{BACKEND_URL}/download_history/{st.session_state.user_id}")
             if response.status_code == 200:
-                # Create a download link for the JSON file
                 chat_history = response.json()
                 json_str = json.dumps(chat_history, indent=2)
                 b64 = base64.b64encode(json_str.encode()).decode()
@@ -90,10 +84,9 @@ with col1:
 
 with col2:
     if st.button("Reset Chat"):
-        requests.post(f"{FASTAPI_URL}/reset_chat", params={"user_id": st.session_state.user_id})
+        requests.post(f"{BACKEND_URL}/reset_chat", params={"user_id": st.session_state.user_id})
         st.session_state.messages = []
         st.rerun()
-
 
 # Display chat history
 for msg in st.session_state.messages:
@@ -104,25 +97,23 @@ for msg in st.session_state.messages:
 query = st.chat_input("Type your message...")
 
 if query:
-    # Append user message to chat history
     st.session_state.messages.append({"role": "user", "content": query})
     with st.chat_message("user"):
         st.write(query)
 
     # Send request to FastAPI backend
     response = requests.post(
-        f"{FASTAPI_URL}/chat",
+        f"{BACKEND_URL}/chat",  # Check if the correct route is /chat or /api/chat
         json={"user_id": st.session_state.user_id, "query": query}
     )
 
-    # Process response
     if response.status_code == 200:
         bot_reply = response.json().get("response", "I'm not sure how to respond.")
         st.session_state.messages.append({"role": "assistant", "content": bot_reply})
 
-        # Display bot response
         with st.chat_message("assistant"):
             st.write(bot_reply)
     else:
         st.error("Error: Could not get a response from the server.")
+
 
