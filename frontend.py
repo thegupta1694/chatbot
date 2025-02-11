@@ -54,7 +54,7 @@ import requests
 import json
 import base64
 
-BACKEND_URL = "https://chatbot-1-hh3z.onrender.com"
+BACKEND_URL = "https://chatbot-deploy-2-u8od.onrender.com"
 
 st.title("💬 AI Chatbot with Context")
 
