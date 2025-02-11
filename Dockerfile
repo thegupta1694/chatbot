@@ -1,4 +1,3 @@
-# Use Python base image instead of Ubuntu
 FROM python:3.9-slim
 
 # Install system dependencies
@@ -23,6 +22,12 @@ COPY . .
 
 # Make start script executable
 RUN chmod +x start.sh
+
+# Set environment variables for memory constraints
+ENV OLLAMA_HOST=127.0.0.1:11434
+ENV OLLAMA_ORIGINS=*
+ENV GOGC=20
+ENV MALLOC_ARENA_MAX=2
 
 # Expose port
 EXPOSE 8000
