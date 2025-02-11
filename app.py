@@ -171,7 +171,7 @@ async def chat(request: ChatRequest):
             # Generate response using Ollama
             logger.info("Sending request to Ollama")
             response = ollama.chat(
-                model="mistral",
+                model="gemma",
                 messages=conversation_history,
                 stream=False,
                 options={
