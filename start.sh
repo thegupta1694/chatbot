@@ -15,7 +15,7 @@ echo "Checking Ollama service..."
 curl -s http://localhost:11434/api/version || (echo "Ollama is not responding" && exit 1)
 
 echo "Pulling optimized model..."
-ollama pull mistral
+ollama pull gemma:2b
 
 echo "Verifying model..."
 ollama list
