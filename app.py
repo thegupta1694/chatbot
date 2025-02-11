@@ -171,10 +171,15 @@ async def chat(request: ChatRequest):
             # Generate response using Ollama
             logger.info("Sending request to Ollama")
             response = ollama.chat(
-                model="llama3",
+                model="tinyllama",
                 messages=conversation_history,
-                stream=False
+                stream=False,
+                options={
+                        "num_ctx": 512, #reduce context window
+                        "num_thread": 2 # limit threads
+                }        
             )
+                
             logger.debug(f"Ollama response: {response}")
             
             bot_reply = response.get("message", {}).get("content", "I'm not sure how to respond.")
