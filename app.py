@@ -64,13 +64,23 @@
 #         del chat_sessions[user_id]
 #     return {"status": "success", "message": "Chat history reset for user."}
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import ollama
 import datetime
 import json
 from typing import Dict, List
 from fastapi.responses import JSONResponse
+import logging
+import sys
+
+# Configure logging
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    stream=sys.stdout
+)
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
