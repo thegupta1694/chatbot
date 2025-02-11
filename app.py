@@ -133,29 +133,55 @@ def clear_user_logs(user_id):
 async def chat(request: ChatRequest):
     """Handles user queries, remembers conversation context, and returns AI-generated responses."""
     try:
-        user_id = request.user_id  # Unique user identifier
+        logger.info(f"Received chat request from user {request.user_id}")
+        user_id = request.user_id
         query = request.query
 
-        # Retrieve chat history for the user
+        # Log the incoming request
+        logger.debug(f"Query: {query}")
+
+        # Check if Ollama is responsive
+        try:
+            models = ollama.list()
+            logger.info(f"Available models: {models}")
+        except Exception as e:
+            logger.error(f"Error connecting to Ollama: {str(e)}")
+            raise HTTPException(status_code=500, detail="Failed to connect to Ollama service")
+
+        # Retrieve chat history
         if user_id not in chat_sessions:
             chat_sessions[user_id] = []
         
-        # Format conversation history for context
+        # Format conversation history
         conversation_history = chat_sessions[user_id] + [{"role": "user", "content": query}]
+        
+        logger.debug(f"Conversation history: {conversation_history}")
 
-        # Generate response using LLaMA 3
-        response = ollama.chat(model="llama3", messages=conversation_history)
-        bot_reply = response.get("message", {}).get("content", "I'm not sure how to respond.")
+        try:
+            # Generate response using Ollama
+            logger.info("Sending request to Ollama")
+            response = ollama.chat(
+                model="llama3",
+                messages=conversation_history,
+                stream=False
+            )
+            logger.debug(f"Ollama response: {response}")
+            
+            bot_reply = response.get("message", {}).get("content", "I'm not sure how to respond.")
+            
+            # Update chat history
+            chat_sessions[user_id].append({"role": "user", "content": query})
+            chat_sessions[user_id].append({"role": "assistant", "content": bot_reply})
+            
+            logger.info("Successfully generated response")
+            return {"status": "success", "query": query, "response": bot_reply}
 
-        # Update the chat history with the new response
-        chat_sessions[user_id].append({"role": "user", "content": query})
-        chat_sessions[user_id].append({"role": "assistant", "content": bot_reply})
-
-        log_conversation(user_id, query, bot_reply)  # Log the chat
-
-        return {"status": "success", "query": query, "response": bot_reply}
+        except Exception as e:
+            logger.error(f"Error generating response: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Failed to generate response: {str(e)}")
 
     except Exception as e:
+        logger.error(f"Error in chat endpoint: {str(e)}")
         return {"status": "error", "message": str(e)}
 
 @app.post("/reset_chat")
