@@ -232,3 +232,13 @@ async def download_history(user_id: str):
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
+@app.get("/health")
+async def health_check():
+    try:
+        # Test Ollama connection
+        response = ollama.list()
+        logger.info(f"Ollama models available: {response}")
+        return {"status": "healthy", "ollama_status": "connected"}
+    except Exception as e:
+        logger.error(f"Health check failed: {str(e)}")
+        return {"status": "unhealthy", "error": str(e)}
