@@ -1,36 +1,31 @@
-# Use Ubuntu as base image
-FROM ubuntu:22.04
-
-# Prevent interactive prompts during package installation
-ENV DEBIAN_FRONTEND=noninteractive
+# Use Python base image instead of Ubuntu
+FROM python:3.9-slim
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
     curl \
-    python3 \
-    python3-pip \
-    git \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Ollama
-RUN curl -fsSL https://ollama.com/install.sh | sh
+RUN curl -fsSL https://ollama.com/install.sh | bash
 
 # Set working directory
 WORKDIR /app
 
-# Copy requirements and install Python dependencies
+# Copy requirements first for better caching
 COPY requirements.txt .
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
+# Copy application files
 COPY . .
 
 # Make start script executable
-COPY start.sh .
 RUN chmod +x start.sh
 
-# Expose port (will be overridden by PORT environment variable in Render)
+# Expose port
 EXPOSE 8000
 
-# Start both Ollama and FastAPI application
+# Start the application
 CMD ["./start.sh"]
